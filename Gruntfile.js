@@ -21,5 +21,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-typescript');
 	grunt.loadNpmTasks('grunt-execute');
 	grunt.registerTask('default', ['typescript', 'execute']);
+	grunt.registerTask('build', ['typescript'])
 };
 
