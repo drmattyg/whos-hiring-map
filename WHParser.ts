@@ -23,7 +23,7 @@ export class WHParser {
 		this.html = html
 		var $ = cheerio.load(this.html);
 		var ent: Array<WHEntry> = [];
-		$('.c5a').each(function(i, elem) { 
+		$('.c5a,.cae,.c00,.c9c,.cdd,.c73,.c88').each(function(i, elem) { 
 			console.log($(this));
 			var entry : WHEntry = new WHEntry($(this).html())
 			ent.push(entry) 
