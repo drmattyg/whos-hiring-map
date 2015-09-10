@@ -40,6 +40,14 @@ export class NERClient {
 		return;
 	}
 
-	var 
+	// Stole this from here: http://stackoverflow.com/questions/280634/endswith-in-javascript
+	endsWith(input: string, suffix: string) : boolean {
+		return input.indexOf(suffix, input.length - suffix.length) !== -1;
+	}
+
+
+	processResults(result: string) : Array<NEREntity>{
+		var data: Array<string> = result.split(/\s+/).filter(function(d) { return this.endsWith(d, '/LOCATION') });
+	}
 
 }
