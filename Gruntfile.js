@@ -16,11 +16,22 @@ module.exports = function(grunt) {
 		  	target: {
 		  		src: ['build/parser.js']
 		  	}
-		  }
+		  },
+		  mochaTest: {
+		    test: {
+        		options: {
+	         	 quiet: false
+    	    	}
+    		},
+    		src: ['build/test.js']
+    	}
+        
 	});
 	grunt.loadNpmTasks('grunt-typescript');
 	grunt.loadNpmTasks('grunt-execute');
+	grunt.loadNpmTasks('grunt-mocha-test');
 	grunt.registerTask('default', ['typescript', 'execute']);
-	grunt.registerTask('build', ['typescript'])
+	grunt.registerTask('build', ['typescript']);
+	grunt.registerTask('test', ['typescript', 'mochaTest']);
 };
 
