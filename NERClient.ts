@@ -22,8 +22,8 @@ export class NERClient {
 		return "foo" + bar;
 	}
 	processResults(result: string): Array<NEREntity> {
-		var entities: Array<NEREntity> = result.split(/\s+/).map(function(value: string) {
-			var e = new NEREntity() // debug
+		var entities: Array<NEREntity> = result.trim().split(/\s+/).map((value: string) => {
+			var e = new NEREntity()
 			var m: RegExpMatchArray = value.match(this.reEntString);
 			if (m === null || m.length != 3) { throw "Invalid input from NER" }
 			if (m[2] === "LOCATION") {
@@ -57,6 +57,7 @@ export class NERClient {
 			this.queryResult = data.toString();
 		});
 		client.on("end", () => {
+			console.log("Query result:")
 			console.log(this.queryResult);
 			callback(this.processResults(this.queryResult));
 			
