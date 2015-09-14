@@ -18,9 +18,7 @@ export class NERClient {
 		this.port = port;
 		this.host = host;
 	}
-	foo(bar : string) : string { 
-		return "foo" + bar;
-	}
+
 	processResults(result: string): Array<NEREntity> {
 		var entities: Array<NEREntity> = result.trim().split(/\s+/).map((value: string) => {
 			var e = new NEREntity()
@@ -37,10 +35,11 @@ export class NERClient {
 		var coalescedEntities: Array<NEREntity> = new Array<NEREntity>();
 		var wasLocation: boolean = false;
 		entities.forEach(function(e: NEREntity, ix: number) {
-			if (ix != 0 && e.isLocation && coalescedEntities[ix - 1].isLocation) {
+			if (ix != 0 && e.isLocation && coalescedEntities[coalescedEntities.length - 1].isLocation) {
 				var previous: NEREntity = coalescedEntities.pop();
 				previous.name = previous.name + " " + e.name
 				coalescedEntities.push(previous)
+
 			} else {
 				coalescedEntities.push(e)
 			}
