@@ -2,6 +2,8 @@
 /// <reference path="typings/assert/assert.d.ts" />
 import assert = require('assert');
 import NERClient = require('./NERClient');
+import WHP = require('./WHParser')
+import fs = require('fs')
 
 describe("Simple test 1", () => {
 	it('Tests that Grunt/Mocha tests are functioning', () => {
@@ -34,10 +36,21 @@ describe("NERClient tests", () => {
 				assert.equal(locations.length, 2);
 				assert.notEqual(locations.filter((e) => { return e.name == "San Francisco CA" }), -1);
 				assert.notEqual(locations.filter((e) => { return e.name == "New Orleans" }), -1);	
-				done(); 
+				done(); 	
+
 			});
 
 
 		});
+	});
+});
+
+describe("WHParser tests", () => {
+	it("loads a file and extracts the headers", () => { 
+		var html: string = fs.readFileSync('data/aug_2015.html', 'utf-8');
+		var nc: NERClient.NERClient = new NERClient.NERClient(9191, "localhost");
+		var whp: WHP.WHParser = new WHP.WHParser(html, nc);
+		assert.equal(whp.entries.length, 976 )
+		assert.equal(whp.entries[0].header, 'Let&apos;s Encrypt | Full Time | Remote')
 	});
 });
