@@ -4,31 +4,33 @@
 
 
 
-//	import cheerio = require('cheerio');
+import NC = require('./NERClient')
 export class WHEntry { 
 	html: string;
 	header: string;
 	latitude: number;
 	longitude: number;
+
+
 	constructor(html: string) {
 		this.html = html;
 		this.header = html.split(/(<p>|\n)/)[0]
+
 	}
 }
 export class WHParser {
 	html: string;
-	entries: Array<WHEntry>;
-	constructor(html: string) {
+	entries: Array<WHEntry> = [];
+	nerClient: NC.NERClient;
+	constructor(html: string, client: NC.NERClient) {
 		var cheerio: CheerioAPI = require('cheerio');
 		this.html = html
+		this.nerClient = client;
 		var $ = cheerio.load(this.html);
-		var ent: Array<WHEntry> = [];
-		$('.c5a,.cae,.c00,.c9c,.cdd,.c73,.c88').each(function(i, elem) { 
-			console.log($(this));
-			var entry : WHEntry = new WHEntry($(this).html())
-			ent.push(entry) 
+		$('.c5a,.cae,.c00,.c9c,.cdd,.c73,.c88').each((i: number, elem: CheerioElement) => { 
+			var entry : WHEntry = new WHEntry($(elem).html())
+			this.entries.push(entry);
 		});
-		this.entries = ent;
 	}
 }
 //export = WHParser

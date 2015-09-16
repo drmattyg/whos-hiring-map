@@ -1,19 +1,20 @@
 /// <reference path='typings/node/node.d.ts' />
 /// <reference path='typings/request/request.d.ts' />
-
+/// <reference path='typings/js-yaml/js-yaml.d.ts' />
 import WHParser = require('./WHParser');
 import request = require('request');
 import NERClient = require('./NERClient')
+import yaml = require('js-yaml');
+import fs = require('fs');
+
+
 var hnUrl : string = 'https://news.ycombinator.com/item?id=9996333';
-var client: NERClient.NERClient = new NERClient.NERClient(9191, 'localhost');
-client.query("If you're going to San Francisco, you should wear some flowers in your hair", function(entities: Array<NERClient.NEREntity>) {
-	console.log(entities);
-});
-/*
-request(hnUrl, function(error, response, body) {
-	var whp : WHParser.WHParser = new WHParser.WHParser(body)
+var config: any = yaml.safeLoad(fs.readFileSync('./conf/config.yml', 'utf8'));
+var client: NERClient.NERClient = new NERClient.NERClient(config.ner.port, config.ner.host);
+request(hnUrl, (error, response, body) => {
+	var whp : WHParser.WHParser = new WHParser.WHParser(body, client)
 	whp.entries.forEach(entry => {
 		console.log(entry.header);
 	});
 });
-*/
+

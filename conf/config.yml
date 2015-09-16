@@ -1,0 +1,3 @@
+ner:
+ port: 9191
+ host: "localhost"
