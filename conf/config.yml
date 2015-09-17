@@ -1,3 +1,5 @@
 ner:
  port: 9191
  host: "localhost"
+bing:
+ key: "AvOlbHckKDQPCdOpcCVFgOIIkU-s6ZqvDtBmH5TnpQ5lVXu9d4bwk-oYGfilG4Ca"
