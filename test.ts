@@ -1,10 +1,13 @@
 /// <reference path="typings/mocha/mocha.d.ts" />
 /// <reference path="typings/assert/assert.d.ts" />
+/// <reference path="typings/q/Q.d.ts" />
+
 import assert = require('assert');
 import NERClient = require('./NERClient');
 import WHP = require('./WHParser')
 import fs = require('fs')
 import yaml = require('js-yaml');
+import Q = require('q')
 
 var config: any = yaml.safeLoad(fs.readFileSync('./conf/config.yml', 'utf8'));
 describe("Simple test 1", () => {
@@ -81,13 +84,26 @@ describe("WHParser tests", () => {
 			done();
 		});
 	});
-	it("loads a file and extracts the headers", (done) => { 
+	it("loads a file and extracts the headers", (mochaDone) => {
 		var nc: NERClient.NERClient = new NERClient.NERClient(config.ner.port, config.ner.host);
 		var whp: WHP.WHParser = new WHP.WHParser(html, nc, config.bing.key);
-		console.log(whp.entries.length);
-		// assert.equal(whp.entries.length, 976 )
-		assert.equal(whp.entries[0].header, 'Let&apos;s Encrypt | Full Time | Remote')
-		done();
+		// var deferred: Q.Deferred<WHP.WHEntry> = Q.defer<WHP.WHEntry>();
+		var promises: Array<Q.Promise<WHP.WHEntry>> = whp.entries.map((entry: WHP.WHEntry) => { 
+			var deferred: Q.Deferred<WHP.WHEntry> = Q.defer<WHP.WHEntry>();
+			whp.geocodeEntry(entry, () => {
+				deferred.resolve(entry);
+			});
+			return deferred.promise;
+		});
+		var resolvedEntries: WHP.WHEntry[]
+		Q.all<WHP.WHEntry>(promises).done((values : WHP.WHEntry[]) => {
+			console.log(values);
+			mochaDone();			
+		});
+
+		// assert.equal(whp.entries.length, 18);
+		// assert.equal(whp.entries[0].header, 'Let&apos;s Encrypt | Full Time | Remote')
+		//done();
 	});
 /*	it("Extracts entities from  a header", (done) => {
 		var nc: NERClient.NERClient = new NERClient.NERClient(config.ner.port, config.ner.host);

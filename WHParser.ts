@@ -56,16 +56,25 @@ export class WHParser {
 		var $ = cheerio.load(this.html);
 		$('.c5a,.cae,.c00,.c9c,.cdd,.c73,.c88').each((i: number, elem: CheerioElement) => { 
 			var entry : WHEntry = new WHEntry($(elem).html())
-			if (geocoderApiKey) {
-				this.geocodeEntry(entry, () => {
-					this.entries.push(entry);
-				});
-			} else {
-				this.entries.push(entry);
-			}
+			this.entries.push(entry);
+			// if (geocoderApiKey) {
+			// 	this.geocodeEntry(entry, () => {
+			// 		this.entries.push(entry);
+			// 	});
+			// } else {
+			// 	this.entries.push(entry);
+			// }
 			
 		});
 			
+	}
+
+	geocodeEntries(callback: (WHEntry) => void) {
+		this.entries.forEach((e: WHEntry) => {
+			this.geocodeEntry(e, () => {
+				callback(e);
+			});
+		});
 	}
 
 	// for testing
@@ -82,7 +91,6 @@ export class WHParser {
 		var m: RegExpMatchArray = entry.header.match(this.cityStateRegex) //(/\b([\w\s]*?, \w\w)/);
 		if(m) {
 			locationName = m[0]
-//			console.log(locationName);
 			entry.geoName = locationName;
 			this.geocodeString(locationName, (p: GeoPoint) => { 
 				entry.geolocation = p; 
@@ -110,7 +118,6 @@ export class WHParser {
 
 
 	geocodeString(value : string, callback : (GeoPoint) => void) : void {
-		console.log(value)
 		geocoder.geocode(value, (err: any, data: any) => {
 			var rs = data.resourceSets[0]
 			if (rs.estimatedTotal == 0) { callback(null); }
