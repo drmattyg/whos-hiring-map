@@ -1,5 +1,6 @@
 /// <reference path='typings/cheerio/cheerio.d.ts' />
 // /// <reference path='typings/q/Q.d.ts' />
+/// <reference path='typings/leaflet/leaflet.d.ts' />
 // using https://gist.github.com/kristopolous/19260ae54967c2219da8 as reference for parsing
 
 
@@ -23,13 +24,19 @@ export class WHEntry {
 	
 
 	constructor(html: string) {
-		this.html = html;
-		this.header = html.split(/(<p>|\n)/)[0]
+		var d : Array<string> = html.split(/(<p>|\n)/);
+
+		this.header = d[0]
+		this.html = html.replace(this.header, "")
 
 	}
-
-
-
+/*
+	toLeafletMarker() : L.Marker {
+		var marker: L.Marker = new L.Marker([this.geolocation.latitude, this.geolocation.longitude]);
+		marker.bindPopup("<b>" + this.header + "<b><p>" + this.html);
+		return marker;
+	}
+*/
 
 
 }
@@ -103,6 +110,7 @@ export class WHParser {
 
 
 	geocodeString(value : string, callback : (GeoPoint) => void) : void {
+		console.log(value)
 		geocoder.geocode(value, (err: any, data: any) => {
 			var rs = data.resourceSets[0]
 			if (rs.estimatedTotal == 0) { callback(null); }

@@ -3,7 +3,7 @@
         "module": "commonjs"
     },
     "files" :[
-    		"parser.ts", "WHParser.ts", "NERClient.ts"
+    		"parser.ts", "WHParser.ts", "NERClient.ts", "embedMap.ts"
     ],
      "exclude": [
         "node_modules"

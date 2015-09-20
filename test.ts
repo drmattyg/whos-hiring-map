@@ -5,8 +5,8 @@ import NERClient = require('./NERClient');
 import WHP = require('./WHParser')
 import fs = require('fs')
 import yaml = require('js-yaml');
-var config: any = yaml.safeLoad(fs.readFileSync('./conf/config.yml', 'utf8'));
 
+var config: any = yaml.safeLoad(fs.readFileSync('./conf/config.yml', 'utf8'));
 describe("Simple test 1", () => {
 	it('Tests that Grunt/Mocha tests are functioning', () => {
 		var n: number = 2 + 3;
@@ -48,11 +48,10 @@ describe("NERClient tests", () => {
 });
 
 describe("WHParser tests", () => {
-	var html: string = fs.readFileSync('data/aug_2015.html', 'utf-8');
+	var html: string = fs.readFileSync('data/aug_2015_subset.html', 'utf-8');
 	var nc: NERClient.NERClient = new NERClient.NERClient(config.ner.port, config.ner.host);
 	var whp: WHP.WHParser = WHP.WHParser.getEmptyInstance(nc, <string>config.bing.key);
-	it("Tests geocoding city/state headers", (done) => {
-		
+	it("Tests geocoding city/state headers", (done) => {		
 		var whe: WHP.WHEntry = new WHP.WHEntry("New York, NY; Full time; VISA; ONSITE only; Addepar<p>")
 
 		whp.geocodeEntry(whe, () => {
@@ -82,18 +81,20 @@ describe("WHParser tests", () => {
 			done();
 		});
 	});
-/*	it("loads a file and extracts the headers", () => { 
+	it("loads a file and extracts the headers", (done) => { 
 		var nc: NERClient.NERClient = new NERClient.NERClient(config.ner.port, config.ner.host);
 		var whp: WHP.WHParser = new WHP.WHParser(html, nc, config.bing.key);
-		assert.equal(whp.entries.length, 976 )
+		console.log(whp.entries.length);
+		// assert.equal(whp.entries.length, 976 )
 		assert.equal(whp.entries[0].header, 'Let&apos;s Encrypt | Full Time | Remote')
+		done();
 	});
-	it("Extracts entities from  a header", (done) => {
+/*	it("Extracts entities from  a header", (done) => {
 		var nc: NERClient.NERClient = new NERClient.NERClient(config.ner.port, config.ner.host);
 		var whp: WHP.WHParser = new WHP.WHParser(html, nc, config.bing.key);
 		console.log(whp.entries[6].header)
 		whp.geocodeEntry(whp.entries[6], () => {
 			done();
 		});
-	});	*/
+	});*/
 });

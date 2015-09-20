@@ -31,6 +31,9 @@
     },
     "request/request.d.ts": {
       "commit": "273a567b0a0bcc34cbf2a2470b2febc95796b644"
+    },
+    "leaflet/leaflet.d.ts": {
+      "commit": "273a567b0a0bcc34cbf2a2470b2febc95796b644"
     }
   }
 }
