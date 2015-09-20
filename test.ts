@@ -49,14 +49,36 @@ describe("NERClient tests", () => {
 
 describe("WHParser tests", () => {
 	var html: string = fs.readFileSync('data/aug_2015.html', 'utf-8');
+	var nc: NERClient.NERClient = new NERClient.NERClient(config.ner.port, config.ner.host);
+	var whp: WHP.WHParser = WHP.WHParser.getEmptyInstance(nc, <string>config.bing.key);
 	it("Tests geocoding city/state headers", (done) => {
-		var nc: NERClient.NERClient = new NERClient.NERClient(config.ner.port, config.ner.host);
-		var whp: WHP.WHParser = new WHP.WHParser(null, nc, <string>config.bing.key);
+		
 		var whe: WHP.WHEntry = new WHP.WHEntry("New York, NY; Full time; VISA; ONSITE only; Addepar<p>")
 
-		whp.bingKey = config.bing.key;
 		whp.geocodeEntry(whe, () => {
 			console.log(whe);
+			assert.equal(whe.geolocation.latitude, 40.78200149536133);
+			assert.equal(whe.geolocation.longitude, -73.83170318603516);
+			done();
+		});
+	});
+
+	it("Tests another city/state header", (done) => {
+		var whe: WHP.WHEntry = new WHP.WHEntry("Headspring[http://www.headspring.com] | Onsite | Full-Time | VISA | Austin, Dallas and Houston, TX. Monterrey, Mexico.");
+		whp.geocodeEntry(whe, () => {
+			console.log(whe);
+			assert.equal(whe.geolocation.latitude, 29.76045036315918);
+			assert.equal(whe.geolocation.longitude, -95.36978149414062);
+			done();
+		});
+	});
+	it("Tests geocoding entity extracted headers", (done) => 
+	{
+		var whe: WHP.WHEntry = new WHP.WHEntry("Verbate | Sydney | Software Engineer | ONSITE")
+		whp.geocodeEntry(whe, () => {
+			console.log(whe);
+			assert.equal(whe.geolocation.longitude, 151.2030029296875)
+			assert.equal(whe.geolocation.latitude, -33.874000549316406)
 			done();
 		});
 	});

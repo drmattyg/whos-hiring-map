@@ -19,7 +19,8 @@ export class WHEntry {
 	html: string;
 	header: string;
 	geolocation: GeoPoint;
-	cityStateRegex: RegExp = /\b([\w\s]*?, \w\w)/;
+	geoName: string;
+	
 
 	constructor(html: string) {
 		this.html = html;
@@ -37,6 +38,8 @@ export class WHParser {
 	entries: Array<WHEntry> = [];
 	nerClient: NC.NERClient;
 	bingKey: string;
+//	cityStateRegex: RegExp = /\b([A-Z]\w+(?:\s[A-Z]\w*)?\s+(?:AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC|AB|BC|MB|NB|NL|NS|ON|PE|QC|SK)\b)/;
+	cityStateRegex: RegExp = /\b([A-Z]\w+(?:\s[A-Z]\w*)?,\s?(?:AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC|AB|BC|MB|NB|NL|NS|ON|PE|QC|SK))\b/;
 	constructor(html: string, client: NC.NERClient, geocoderApiKey: string) {
 		var cheerio: CheerioAPI = require('cheerio');
 		this.html = html
@@ -48,8 +51,6 @@ export class WHParser {
 			var entry : WHEntry = new WHEntry($(elem).html())
 			if (geocoderApiKey) {
 				this.geocodeEntry(entry, () => {
-					console.log(entry.header);
-					console.log(entry.geolocation);
 					this.entries.push(entry);
 				});
 			} else {
@@ -60,16 +61,22 @@ export class WHParser {
 			
 	}
 
-	
-	
+	// for testing
+	static getEmptyInstance(client: NC.NERClient, geocoderApiKey: string): WHParser {
+		var whp : WHParser = new WHParser(null, client, null)
+		whp.bingKey = geocoderApiKey;
+		whp.html = null;
+		return whp;
+	}
 
 	geocodeEntry(entry: WHEntry, callback: () => void) : void {
 		// first, try the simple city/state regex
 		var locationName : string = null
-		var m: RegExpMatchArray = entry.header.match(/\b([\w\s]*?, \w\w)/);
+		var m: RegExpMatchArray = entry.header.match(this.cityStateRegex) //(/\b([\w\s]*?, \w\w)/);
 		if(m) {
 			locationName = m[0]
 //			console.log(locationName);
+			entry.geoName = locationName;
 			this.geocodeString(locationName, (p: GeoPoint) => { 
 				entry.geolocation = p; 
 				callback(); 
@@ -81,6 +88,7 @@ export class WHParser {
 			var locationName : string = "NOWHERE"
 			if (locations.length > 0) { 
 				locationName = locations[0].name; 
+				entry.geoName = locationName
 				this.geocodeString(locationName, (p: GeoPoint) => {
 					entry.geolocation = p;
 					callback();
