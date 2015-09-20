@@ -49,7 +49,18 @@ describe("NERClient tests", () => {
 
 describe("WHParser tests", () => {
 	var html: string = fs.readFileSync('data/aug_2015.html', 'utf-8');
-	it("loads a file and extracts the headers", () => { 
+	it("Tests geocoding city/state headers", (done) => {
+		var nc: NERClient.NERClient = new NERClient.NERClient(config.ner.port, config.ner.host);
+		var whp: WHP.WHParser = new WHP.WHParser(null, nc, <string>config.bing.key);
+		var whe: WHP.WHEntry = new WHP.WHEntry("New York, NY; Full time; VISA; ONSITE only; Addepar<p>")
+
+		whp.bingKey = config.bing.key;
+		whp.geocodeEntry(whe, () => {
+			console.log(whe);
+			done();
+		});
+	});
+/*	it("loads a file and extracts the headers", () => { 
 		var nc: NERClient.NERClient = new NERClient.NERClient(config.ner.port, config.ner.host);
 		var whp: WHP.WHParser = new WHP.WHParser(html, nc, config.bing.key);
 		assert.equal(whp.entries.length, 976 )
@@ -62,5 +73,5 @@ describe("WHParser tests", () => {
 		whp.geocodeEntry(whp.entries[6], () => {
 			done();
 		});
-	});	
+	});	*/
 });

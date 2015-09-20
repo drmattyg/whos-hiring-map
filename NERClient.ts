@@ -56,8 +56,8 @@ export class NERClient {
 			this.queryResult = data.toString();
 		});
 		client.on("end", () => {
-			console.log("Query result:")
-			console.log(this.queryResult);
+			// console.log("Query result:")
+			// console.log(this.queryResult);
 			callback(this.processResults(this.queryResult));
 			
 
