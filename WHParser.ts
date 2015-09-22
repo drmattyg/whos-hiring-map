@@ -5,11 +5,13 @@
 
 
 
-import NC = require('./NERClient')
+import NC = require('./NERClient');
+import Config = require('./Config');
 
 // why do it the hard way when someone already did the work for you?
 var geocoder = require('simple-bing-geocoder')
-import Q = require('q')
+import Q = require('q');
+var qlimit = require('qlimit'); // no tsd for qlimit
 
 export class GeoPoint {
 	latitude: number;
@@ -46,7 +48,9 @@ export class WHParser {
 	nerClient: NC.NERClient;
 	bingKey: string;
 	MAX_GEOCODER_TRIES: number = 3;
-//	cityStateRegex: RegExp = /\b([A-Z]\w+(?:\s[A-Z]\w*)?\s+(?:AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC|AB|BC|MB|NB|NL|NS|ON|PE|QC|SK)\b)/;
+	config: any = Config.readConfig();
+	limit = qlimit(this.config.bing.max_connections);
+
 	cityStateRegex: RegExp = /\b([A-Z]\w+(?:\s[A-Z]\w*)?,?\s?(?:AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC|AB|BC|MB|NB|NL|NS|ON|PE|QC|SK))\b/;
 	constructor(html: string, client: NC.NERClient, geocoderApiKey: string) {
 		var cheerio: CheerioAPI = require('cheerio');
@@ -79,9 +83,9 @@ export class WHParser {
 			return deferred.promise;
 		});
 		var resolvedEntries: WHEntry[]
-		Q.all<WHEntry>(promises).done((values: WHEntry[]) => {
+		Q.all<WHEntry>(promises).done(this.limit((values: WHEntry[]) => {
 			callback();
-		});
+		}));
 	}
 
 	// for testing
@@ -94,6 +98,7 @@ export class WHParser {
 
 
 	geocodeEntry(entry: WHEntry, callback: () => void) : void {
+		console.log(entry.header);
 		// first, try the simple city/state regex
 		var locationName : string = null
 		var m: RegExpMatchArray = entry.header.match(this.cityStateRegex) //(/\b([\w\s]*?, \w\w)/);
