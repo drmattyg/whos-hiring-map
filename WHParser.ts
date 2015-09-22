@@ -45,8 +45,9 @@ export class WHParser {
 	entries: Array<WHEntry> = [];
 	nerClient: NC.NERClient;
 	bingKey: string;
+	MAX_GEOCODER_TRIES: number = 3;
 //	cityStateRegex: RegExp = /\b([A-Z]\w+(?:\s[A-Z]\w*)?\s+(?:AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC|AB|BC|MB|NB|NL|NS|ON|PE|QC|SK)\b)/;
-	cityStateRegex: RegExp = /\b([A-Z]\w+(?:\s[A-Z]\w*)?,\s?(?:AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC|AB|BC|MB|NB|NL|NS|ON|PE|QC|SK))\b/;
+	cityStateRegex: RegExp = /\b([A-Z]\w+(?:\s[A-Z]\w*)?,?\s?(?:AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC|AB|BC|MB|NB|NL|NS|ON|PE|QC|SK))\b/;
 	constructor(html: string, client: NC.NERClient, geocoderApiKey: string) {
 		var cheerio: CheerioAPI = require('cheerio');
 		this.html = html
@@ -78,6 +79,7 @@ export class WHParser {
 			return deferred.promise;
 		});
 		var resolvedEntries: WHEntry[]
+		console.log(promises.length);
 		Q.all<WHEntry>(promises).done((values: WHEntry[]) => {
 			callback();
 		});
@@ -91,6 +93,7 @@ export class WHParser {
 		return whp;
 	}
 
+
 	geocodeEntry(entry: WHEntry, callback: () => void) : void {
 		// first, try the simple city/state regex
 		var locationName : string = null
@@ -98,19 +101,24 @@ export class WHParser {
 		if(m) {
 			locationName = m[0]
 			entry.geoName = locationName;
-			this.geocodeString(locationName, (p: GeoPoint) => { 
+			this.geocodeString(locationName, this.MAX_GEOCODER_TRIES, (p: GeoPoint) => { 
 				entry.geolocation = p; 
 				callback(); 
 			});
 			return;
 		}
+
 		this.nerClient.query(entry.header.replace(/,\s?/, " "), (entities: NC.NEREntity[]) => {
+			if(entry.header.search("France") != -1) {
+				console.log(entry.header);
+				console.log(entities);
+			}
 			var locations: NC.NEREntity[] = entities.filter((e: NC.NEREntity) => { return e.isLocation });
 			var locationName : string = "NOWHERE"
 			if (locations.length > 0) { 
 				locationName = locations[0].name; 
 				entry.geoName = locationName
-				this.geocodeString(locationName, (p: GeoPoint) => {
+				this.geocodeString(locationName, this.MAX_GEOCODER_TRIES, (p: GeoPoint) => {
 					entry.geolocation = p;
 					callback();
 				});
@@ -123,10 +131,19 @@ export class WHParser {
 
 
 
-	geocodeString(value : string, callback : (GeoPoint) => void) : void {
+	geocodeString(value : string, maxTries: number, callback : (GeoPoint) => void) : void {
+		if(maxTries < 0) {
+			callback(null);
+			return;
+		}
 		geocoder.geocode(value, (err: any, data: any) => {
+			if(err != null) {
+				console.log("Retrying")
+				this.geocodeString(value, maxTries - 1, callback);
+				return;
+			}
 			var rs = data.resourceSets[0]
-			if (rs.estimatedTotal == 0) { console.log("Failed for " + value); callback(null); }
+			if (rs.estimatedTotal == 0) { console.log("Failed for " + value); callback(null); return; }
 
 			// unpacking all the crap from Bing
 			var coords = rs.resources[0].geocodePoints[0].coordinates

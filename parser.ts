@@ -14,5 +14,11 @@ var config: any = Config.readConfig();
 var nc: NERClient.NERClient = new NERClient.NERClient(config.ner.port, config.ner.host);
 var html: string = fs.readFileSync('data/aug_2015_subset.html', 'utf-8');
 var whp: WHP.WHParser = new WHP.WHParser(html, nc, config.bing.key);
-whp.geocodeEntry(whp.entries[5], () => { console.log(whp.entries[0]) });
+// whp.entries.forEach((e) => {
+// 	console.log("HEADER: " + e.header);
+// });
+whp.geocodeEntries(() => {
+	var geocodedEntries: WHP.WHEntry[] = whp.entries.filter((entry: WHP.WHEntry) => { return entry.geolocation != null; })
+	geocodedEntries.forEach((e) => console.log(e.geoName));
+});
 

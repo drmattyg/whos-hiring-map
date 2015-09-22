@@ -13,7 +13,6 @@ export class NERClient {
 	host: string;
 	callback: (entities: Array<NEREntity>) => void;
 	reEntString: RegExp = /(.*?)\/(.*)$/;
-	queryResult: string;
 	constructor(port: number, host: string ) {
 		this.port = port;
 		this.host = host;
@@ -53,14 +52,10 @@ export class NERClient {
 		var client: net.Socket = net.connect({ port: this.port, host: this.host, function() { client.write(text + "\n"); } });
 		var result: string = null;
 		client.on("data", (data) => {
-			this.queryResult = data.toString();
+			var queryResult : string = data.toString();
+			callback(this.processResults(queryResult));
 		});
 		client.on("end", () => {
-			// console.log("Query result:")
-			// console.log(this.queryResult);
-			callback(this.processResults(this.queryResult));
-			
-
 		});
 		client.write(text);
 		return;
