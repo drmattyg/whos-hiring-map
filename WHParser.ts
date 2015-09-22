@@ -113,6 +113,12 @@ export class WHParser {
 			if (locations.length > 0) { 
 				locationName = locations[0].name; 
 				entry.geoName = locationName
+				if(entry.geoName.toLowerCase() == "bay area") {
+					// special case for HN; Bing geocodes this to Texas, but YC HN almost certainly means SF Bay Area
+					entry.geolocation = { latitude: 37.442548, longitude: -122.162158}
+					callback();
+					return;
+				}
 				this.geocodeString(locationName, this.MAX_GEOCODER_TRIES, (p: GeoPoint) => {
 					entry.geolocation = p;
 					callback();

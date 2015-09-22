@@ -19,6 +19,9 @@ var whp: WHP.WHParser = new WHP.WHParser(html, nc, config.bing.key);
 // });
 whp.geocodeEntries(() => {
 	var geocodedEntries: WHP.WHEntry[] = whp.entries.filter((e) => { return e.geolocation != null; });
-	console.log(JSON.stringify(geocodedEntries));
+	fs.writeFile(config.output.filename, "window.entryData = " + JSON.stringify(geocodedEntries), (err) => {
+
+	});
+
 });
 
