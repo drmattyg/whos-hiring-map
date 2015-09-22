@@ -91,24 +91,14 @@ describe("WHParser tests", () => {
 			assert.equal(whp.entries.length, 18);
 			var geocodedEntries: WHP.WHEntry[] = whp.entries.filter((e: WHP.WHEntry) => { return e.geolocation != null; });
 			geocodedEntries.forEach((e) => { console.log(e.header); console.log(e.geoName); console.log(e.geolocation); });
-			assert.equal(geocodedEntries.length, 5);
+			assert.equal(geocodedEntries.length, 6);
 			var g: WHP.GeoPoint = { latitude: 42.282100677490234, longitude: -83.74846649169922 };
-			assert.equal(geocodedEntries[4].geolocation.latitude, g.latitude);
+			assert.equal(geocodedEntries[5].geolocation.latitude, g.latitude);
 
-			assert.equal(geocodedEntries[4].geolocation.longitude, g.longitude);
+			assert.equal(geocodedEntries[5].geolocation.longitude, g.longitude);
 
 			mochaDone();
 		});
-		// assert.equal(whp.entries.length, 18);
-		// assert.equal(whp.entries[0].header, 'Let&apos;s Encrypt | Full Time | Remote')
-		//done();
+
 	});
-/*	it("Extracts entities from  a header", (done) => {
-		var nc: NERClient.NERClient = new NERClient.NERClient(config.ner.port, config.ner.host);
-		var whp: WHP.WHParser = new WHP.WHParser(html, nc, config.bing.key);
-		console.log(whp.entries[6].header)
-		whp.geocodeEntry(whp.entries[6], () => {
-			done();
-		});
-	});*/
 });

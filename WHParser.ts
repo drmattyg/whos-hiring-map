@@ -109,10 +109,6 @@ export class WHParser {
 		}
 
 		this.nerClient.query(entry.header.replace(/,\s?/, " "), (entities: NC.NEREntity[]) => {
-			if(entry.header.search("France") != -1) {
-				console.log(entry.header);
-				console.log(entities);
-			}
 			var locations: NC.NEREntity[] = entities.filter((e: NC.NEREntity) => { return e.isLocation });
 			var locationName : string = "NOWHERE"
 			if (locations.length > 0) { 
@@ -143,7 +139,16 @@ export class WHParser {
 				return;
 			}
 			var rs = data.resourceSets[0]
-			if (rs.estimatedTotal == 0) { console.log("Failed for " + value); callback(null); return; }
+			if (rs.estimatedTotal == 0) {
+				if (maxTries < 0) {
+					console.log("Failed for " + value);
+					callback(null);
+					return;
+				} else {
+					this.geocodeString(value, maxTries - 1, callback);
+					return;
+				}
+			}
 
 			// unpacking all the crap from Bing
 			var coords = rs.resources[0].geocodePoints[0].coordinates
