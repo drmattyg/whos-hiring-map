@@ -98,7 +98,6 @@ export class WHParser {
 
 
 	geocodeEntry(entry: WHEntry, callback: () => void) : void {
-		console.log(entry.header);
 		// first, try the simple city/state regex
 		var locationName : string = null
 		var m: RegExpMatchArray = entry.header.match(this.cityStateRegex) //(/\b([\w\s]*?, \w\w)/);
