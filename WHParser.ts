@@ -79,7 +79,6 @@ export class WHParser {
 			return deferred.promise;
 		});
 		var resolvedEntries: WHEntry[]
-		console.log(promises.length);
 		Q.all<WHEntry>(promises).done((values: WHEntry[]) => {
 			callback();
 		});
