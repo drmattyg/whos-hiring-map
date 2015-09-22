@@ -5,3 +5,5 @@ bing:
  key: "AvOlbHckKDQPCdOpcCVFgOIIkU-s6ZqvDtBmH5TnpQ5lVXu9d4bwk-oYGfilG4Ca"
 output:
  filename: "data/output.js"
+input:
+ url: 'https://news.ycombinator.com/item?id=10152809'
