@@ -3,7 +3,7 @@ ner:
  host: "localhost"
 bing:
  key: "AvOlbHckKDQPCdOpcCVFgOIIkU-s6ZqvDtBmH5TnpQ5lVXu9d4bwk-oYGfilG4Ca"
- max_connections: 10
+ max_connections: 5
 output:
  filename: "data/output.js"
 input:

@@ -137,35 +137,45 @@ export class WHParser {
 
 
 	geocodeString(value : string, maxTries: number, callback : (GeoPoint) => void) : void {
-		if(maxTries < 0) {
-			callback(null);
-			return;
-		}
-		geocoder.geocode(value, (err: any, data: any) => {
-			if(err != null) {
-				console.log("Retrying")
-				this.geocodeString(value, maxTries - 1, callback);
+		try {
+			if (maxTries < 0) {
+				callback(null);
 				return;
 			}
-			var rs = data.resourceSets[0]
-			if (rs.estimatedTotal == 0) {
-				if (maxTries < 0) {
-					console.log("Failed for " + value);
-					callback(null);
-					return;
-				} else {
+			geocoder.geocode(value, (err: any, data: any) => {
+				if (err != null) {
+					console.log("Retrying")
 					this.geocodeString(value, maxTries - 1, callback);
 					return;
 				}
-			}
+				var rs = data.resourceSets[0]
+				if (rs.estimatedTotal == 0) {
+					if (maxTries < 0) {
+						console.log("Failed for " + value);
+						callback(null);
+						return;
+					} else {
+						this.geocodeString(value, maxTries - 1, callback);
+						return;
+					}
+				}
 
-			// unpacking all the crap from Bing
-			var coords = rs.resources[0].geocodePoints[0].coordinates
-			var p: GeoPoint = new GeoPoint();
-			p.latitude = coords[0]
-			p.longitude = coords[1]
-			callback(p);
-		}, { key: this.bingKey });
+				// unpacking all the crap from Bing
+				var coords = rs.resources[0].geocodePoints[0].coordinates
+				var p: GeoPoint = new GeoPoint();
+				p.latitude = coords[0]
+				p.longitude = coords[1]
+				callback(p);
+			}, { key: this.bingKey });
+		} catch(ex) {
+			if(maxTries < 0) { 
+				callback(null);
+				return;
+			} else {
+				this.geocodeString(value, maxTries - 1, callback);
+				return;
+			}
+		}
 	}
 
 }
