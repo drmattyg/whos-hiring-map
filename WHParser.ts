@@ -1,5 +1,5 @@
 /// <reference path='typings/cheerio/cheerio.d.ts' />
-// /// <reference path='typings/q/Q.d.ts' />
+/// <reference path='typings/q/Q.d.ts' />
 /// <reference path='typings/leaflet/leaflet.d.ts' />
 // using https://gist.github.com/kristopolous/19260ae54967c2219da8 as reference for parsing
 
@@ -9,7 +9,7 @@ import NC = require('./NERClient')
 
 // why do it the hard way when someone already did the work for you?
 var geocoder = require('simple-bing-geocoder')
-//import Q = require('q')
+import Q = require('q')
 
 export class GeoPoint {
 	latitude: number;
@@ -69,11 +69,17 @@ export class WHParser {
 			
 	}
 
-	geocodeEntries(callback: (WHEntry) => void) {
-		this.entries.forEach((e: WHEntry) => {
-			this.geocodeEntry(e, () => {
-				callback(e);
+	geocodeEntries(callback : () => void) : void {
+		var promises: Array<Q.Promise<WHEntry>> = this.entries.map((entry: WHEntry) => {
+			var deferred: Q.Deferred<WHEntry> = Q.defer<WHEntry>();
+			this.geocodeEntry(entry, () => {
+				deferred.resolve(entry);
 			});
+			return deferred.promise;
+		});
+		var resolvedEntries: WHEntry[]
+		Q.all<WHEntry>(promises).done((values: WHEntry[]) => {
+			callback();
 		});
 	}
 
@@ -120,7 +126,7 @@ export class WHParser {
 	geocodeString(value : string, callback : (GeoPoint) => void) : void {
 		geocoder.geocode(value, (err: any, data: any) => {
 			var rs = data.resourceSets[0]
-			if (rs.estimatedTotal == 0) { callback(null); }
+			if (rs.estimatedTotal == 0) { console.log("Failed for " + value); callback(null); }
 
 			// unpacking all the crap from Bing
 			var coords = rs.resources[0].geocodePoints[0].coordinates

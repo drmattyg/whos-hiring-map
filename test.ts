@@ -87,20 +87,18 @@ describe("WHParser tests", () => {
 	it("loads a file and extracts the headers", (mochaDone) => {
 		var nc: NERClient.NERClient = new NERClient.NERClient(config.ner.port, config.ner.host);
 		var whp: WHP.WHParser = new WHP.WHParser(html, nc, config.bing.key);
-		// var deferred: Q.Deferred<WHP.WHEntry> = Q.defer<WHP.WHEntry>();
-		var promises: Array<Q.Promise<WHP.WHEntry>> = whp.entries.map((entry: WHP.WHEntry) => { 
-			var deferred: Q.Deferred<WHP.WHEntry> = Q.defer<WHP.WHEntry>();
-			whp.geocodeEntry(entry, () => {
-				deferred.resolve(entry);
-			});
-			return deferred.promise;
-		});
-		var resolvedEntries: WHP.WHEntry[]
-		Q.all<WHP.WHEntry>(promises).done((values : WHP.WHEntry[]) => {
-			console.log(values);
-			mochaDone();			
-		});
+		whp.geocodeEntries(() => {
+			assert.equal(whp.entries.length, 18);
+			var geocodedEntries: WHP.WHEntry[] = whp.entries.filter((e: WHP.WHEntry) => { return e.geolocation != null; });
+			geocodedEntries.forEach((e) => { console.log(e.header); console.log(e.geoName); console.log(e.geolocation); });
+			assert.equal(geocodedEntries.length, 5);
+			var g: WHP.GeoPoint = { latitude: 42.282100677490234, longitude: -83.74846649169922 };
+			assert.equal(geocodedEntries[4].geolocation.latitude, g.latitude);
 
+			assert.equal(geocodedEntries[4].geolocation.longitude, g.longitude);
+
+			mochaDone();
+		});
 		// assert.equal(whp.entries.length, 18);
 		// assert.equal(whp.entries[0].header, 'Let&apos;s Encrypt | Full Time | Remote')
 		//done();
