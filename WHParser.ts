@@ -50,6 +50,7 @@ export class WHParser {
 	MAX_GEOCODER_TRIES: number = 3;
 	config: any = Config.readConfig();
 	limit = qlimit(this.config.bing.max_connections);
+	geocodeEntryPromise: any = Q.nbind(this.geocodeEntry, this);
 
 	cityStateRegex: RegExp = /\b([A-Z]\w+(?:\s[A-Z]\w*)?,?\s?(?:AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC|AB|BC|MB|NB|NL|NS|ON|PE|QC|SK))\b/;
 	constructor(html: string, client: NC.NERClient, geocoderApiKey: string) {
@@ -75,17 +76,26 @@ export class WHParser {
 	}
 
 	geocodeEntries(callback : () => void) : void {
-		var promises: Array<Q.Promise<WHEntry>> = this.entries.map((entry: WHEntry) => {
+/*		var promises: Array<Q.Promise<WHEntry>> = this.entries.map((entry: WHEntry) => {
 			var deferred: Q.Deferred<WHEntry> = Q.defer<WHEntry>();
-			this.geocodeEntry(entry, () => {
-				deferred.resolve(entry);
-			});
+				this.geocodeEntry(entry, () => {
+					deferred.resolve(entry);
+				});
 			return deferred.promise;
 		});
 		var resolvedEntries: WHEntry[]
-		Q.all<WHEntry>(promises).done(this.limit((values: WHEntry[]) => {
+		Q.all<WHEntry>(promises).done((values: WHEntry[]) => {
 			callback();
-		}));
+		});*/
+		Q.all<WHEntry>(<Q.IPromise < WHEntry > []>
+			this.entries.map(this.limit(
+				(e: WHEntry) => { 
+					return this.geocodeEntryPromise(e);
+				}
+				))).done(
+					(values: WHEntry[]) => {
+					 callback() 
+				});
 	}
 
 	// for testing

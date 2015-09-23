@@ -24,7 +24,7 @@ request.get(hnUrl, (error, response, body) => {
 	whp.geocodeEntries(() => {
 		var geocodedEntries: WHP.WHEntry[] = whp.entries.filter((e) => { return e.geolocation != null; });
 		fs.writeFile(config.output.filename, "window.entryData = " + JSON.stringify(geocodedEntries), (err) => {
-			throw "WTF?"
+			if (err) { throw "WTF?" }
 		});
 
 	});

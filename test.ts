@@ -102,3 +102,14 @@ describe("WHParser tests", () => {
 
 	});
 });
+
+describe("Promise test", () => {
+	it("Creates a promise from a geocode call", (mochaDone) => {
+		var html: string = fs.readFileSync('data/aug_2015_subset.html', 'utf-8');
+		var nc: NERClient.NERClient = new NERClient.NERClient(config.ner.port, config.ner.host);
+		var whp: WHP.WHParser = WHP.WHParser.getEmptyInstance(nc, <string>config.bing.key);
+		var whe: WHP.WHEntry = new WHP.WHEntry("New York, NY; Full time; VISA; ONSITE only; Addepar<p>")
+		whp.entries.push(whe)
+		whp.geocodeEntryPromise(whe).done(() => { console.log(whp.entries); mochaDone(); });
+	});
+});
