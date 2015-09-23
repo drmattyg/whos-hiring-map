@@ -49,7 +49,7 @@ export class WHParser {
 	config: any = Config.readConfig();
 	limit = qlimit(this.config.bing.max_connections);
 	geocodeEntryPromise: any = Q.nbind(this.geocodeEntry, this);
-	locationMap: WHEntry[][] = [];
+	locationMap: {} = {};
 
 	cityStateRegex: RegExp = /\b([A-Z]\w+(?:\s[A-Z]\w*)?,?\s?(?:AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC|AB|BC|MB|NB|NL|NS|ON|PE|QC|SK))\b/;
 	constructor(html: string, client: NC.NERClient, geocoderApiKey: string) {
@@ -77,7 +77,8 @@ export class WHParser {
 				}
 				))).done(
 					(values: WHEntry[]) => {
-					 callback() 
+						this.entries.forEach((e) => this.addEntryToMap(e))
+					 	callback() 
 				});
 	}
 
@@ -179,6 +180,16 @@ export class WHParser {
 		}
 		entryList.push(entry);
 
+	}
+
+	addEntryToMap(entry: WHEntry) : void {
+		if (entry.geolocation == null) return;
+		var entryList: WHEntry[] = this.locationMap[entry.geolocation.key()]
+		if (!entryList) {
+			entryList = [];
+			this.locationMap[entry.geolocation.key()] = entryList;
+		}
+		entryList.push(entry);
 	}
 
 }

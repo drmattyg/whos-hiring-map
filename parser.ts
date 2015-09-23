@@ -18,8 +18,8 @@ request.get(hnUrl, (error, response, body) => {
 	var html: string = body.toString();
 	var whp: WHP.WHParser = new WHP.WHParser(html, nc, config.bing.key);
 	whp.geocodeEntries(() => {
-		var geocodedEntries: WHP.WHEntry[] = whp.entries.filter((e) => { return e.geolocation != null; });
-		fs.writeFile(config.output.filename, "window.entryData = " + JSON.stringify(geocodedEntries), (err) => {
+//		var geocodedEntries: WHP.WHEntry[] = whp.entries.filter((e) => { return e.geolocation != null; });
+		fs.writeFile(config.output.filename, "window.entryData = " + JSON.stringify(whp.locationMap), (err) => {
 			if (err) { throw "WTF?" }
 		});
 
