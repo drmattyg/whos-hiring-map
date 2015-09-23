@@ -27,6 +27,7 @@ export class WHEntry {
 	header: string;
 	geolocation: GeoPoint;
 	geoName: string;
+	parent: WHParser;
 	
 
 	constructor(html: string) {
@@ -60,7 +61,7 @@ export class WHParser {
 		var $ = cheerio.load(this.html);
 		$('.c5a,.cae,.c00,.c9c,.cdd,.c73,.c88').each((i: number, elem: CheerioElement) => { 
 			var entry : WHEntry = new WHEntry($(elem).html())
-			this.entries.push(entry);
+			this.addEntry(entry);
 
 			
 		});
@@ -166,6 +167,18 @@ export class WHParser {
 				return;
 			}
 		}
+	}
+
+	addEntry(entry : WHEntry) : void {
+		this.entries.push(entry);
+		if (entry.geolocation == null) return;
+		var entryList : WHEntry[] = this.locationMap[entry.geolocation.key()]
+		if(!entryList) {
+			entryList = [];
+			this.locationMap[entry.geolocation.key()] = entryList;
+		}
+		entryList.push(entry);
+
 	}
 
 }

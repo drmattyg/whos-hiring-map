@@ -109,7 +109,25 @@ describe("Promise test", () => {
 		var nc: NERClient.NERClient = new NERClient.NERClient(config.ner.port, config.ner.host);
 		var whp: WHP.WHParser = WHP.WHParser.getEmptyInstance(nc, <string>config.bing.key);
 		var whe: WHP.WHEntry = new WHP.WHEntry("New York, NY; Full time; VISA; ONSITE only; Addepar<p>")
-		whp.entries.push(whe)
+		whp.addEntry(whe)
 		whp.geocodeEntryPromise(whe).done(() => { console.log(whp.entries); mochaDone(); });
+	});
+});
+
+describe("Location map test", () => {
+	it("Adds several objects with the same location", (mochaDone) => {
+		var html: string = fs.readFileSync('data/aug_2015_subset.html', 'utf-8');
+		var nc: NERClient.NERClient = new NERClient.NERClient(config.ner.port, config.ner.host);
+		var whp: WHP.WHParser = new WHP.WHParser(html, nc, config.bing.key);
+		var whpWithDupes: WHP.WHParser = WHP.WHParser.getEmptyInstance(nc, null);
+		whp.geocodeEntries(() => {
+			[5, 6, 7, 8, 9, 10, 5, 6, 7, 12, 13, 14, 12, 13, 14].forEach((n : number) => {
+				whpWithDupes.addEntry(whp.entries[n]);
+			})
+			//console.log(whpWithDupes.entries);
+			console.log(whpWithDupes.locationMap);
+			mochaDone();
+		})
+		//var dupeEntry : WHP.WHEntry = new WHP.WHEntry()
 	});
 });
