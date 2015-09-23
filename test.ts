@@ -92,7 +92,7 @@ describe("WHParser tests", () => {
 			var geocodedEntries: WHP.WHEntry[] = whp.entries.filter((e: WHP.WHEntry) => { return e.geolocation != null; });
 			geocodedEntries.forEach((e) => { console.log(e.header); console.log(e.geoName); console.log(e.geolocation); });
 			assert.equal(geocodedEntries.length, 6);
-			var g: WHP.GeoPoint = { latitude: 42.282100677490234, longitude: -83.74846649169922 };
+			var g: WHP.GeoPoint = new WHP.GeoPoint(42.282100677490234, -83.74846649169922);
 			assert.equal(geocodedEntries[5].geolocation.latitude, g.latitude);
 
 			assert.equal(geocodedEntries[5].geolocation.longitude, g.longitude);

@@ -13,11 +13,7 @@ import fs = require('fs');
 var config: any = Config.readConfig();
 var hnUrl: string = config.input.url;
 var nc: NERClient.NERClient = new NERClient.NERClient(config.ner.port, config.ner.host);
-// var html: string = fs.readFileSync('data/aug_2015_subset.html', 'utf-8');
 
-// whp.entries.forEach((e) => {
-// 	console.log("HEADER: " + e.header);
-// });
 request.get(hnUrl, (error, response, body) => {
 	var html: string = body.toString();
 	var whp: WHP.WHParser = new WHP.WHParser(html, nc, config.bing.key);

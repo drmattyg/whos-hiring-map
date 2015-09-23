@@ -16,6 +16,10 @@ var qlimit = require('qlimit'); // no tsd for qlimit
 export class GeoPoint {
 	latitude: number;
 	longitude: number;
+	constructor(lat: number, lon: number) { this.latitude = lat; this.longitude = lon; }
+	key() : string {
+		return this.latitude.toString() + ":" + this.longitude.toString();
+	}
 }
 
 export class WHEntry {
@@ -44,6 +48,7 @@ export class WHParser {
 	config: any = Config.readConfig();
 	limit = qlimit(this.config.bing.max_connections);
 	geocodeEntryPromise: any = Q.nbind(this.geocodeEntry, this);
+	locationMap: WHEntry[][] = [];
 
 	cityStateRegex: RegExp = /\b([A-Z]\w+(?:\s[A-Z]\w*)?,?\s?(?:AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC|AB|BC|MB|NB|NL|NS|ON|PE|QC|SK))\b/;
 	constructor(html: string, client: NC.NERClient, geocoderApiKey: string) {
@@ -106,7 +111,7 @@ export class WHParser {
 				entry.geoName = locationName
 				if(entry.geoName.toLowerCase() == "bay area") {
 					// special case for HN; Bing geocodes this to Texas, but YC HN almost certainly means SF Bay Area
-					entry.geolocation = { latitude: 37.442548, longitude: -122.162158}
+					entry.geolocation = new GeoPoint(37.442548, -122.162158);
 					callback();
 					return;
 				}
@@ -149,9 +154,7 @@ export class WHParser {
 
 				// unpacking all the crap from Bing
 				var coords = rs.resources[0].geocodePoints[0].coordinates
-				var p: GeoPoint = new GeoPoint();
-				p.latitude = coords[0]
-				p.longitude = coords[1]
+				var p: GeoPoint = new GeoPoint(coords[0], coords[1]);
 				callback(p);
 			}, { key: this.bingKey });
 		} catch(ex) {
