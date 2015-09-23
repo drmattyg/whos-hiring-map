@@ -32,13 +32,6 @@ export class WHEntry {
 		this.html = html.replace(this.header, "")
 
 	}
-/*
-	toLeafletMarker() : L.Marker {
-		var marker: L.Marker = new L.Marker([this.geolocation.latitude, this.geolocation.longitude]);
-		marker.bindPopup("<b>" + this.header + "<b><p>" + this.html);
-		return marker;
-	}
-*/
 
 
 }
@@ -63,30 +56,14 @@ export class WHParser {
 		$('.c5a,.cae,.c00,.c9c,.cdd,.c73,.c88').each((i: number, elem: CheerioElement) => { 
 			var entry : WHEntry = new WHEntry($(elem).html())
 			this.entries.push(entry);
-			// if (geocoderApiKey) {
-			// 	this.geocodeEntry(entry, () => {
-			// 		this.entries.push(entry);
-			// 	});
-			// } else {
-			// 	this.entries.push(entry);
-			// }
+
 			
 		});
 			
 	}
 
 	geocodeEntries(callback : () => void) : void {
-/*		var promises: Array<Q.Promise<WHEntry>> = this.entries.map((entry: WHEntry) => {
-			var deferred: Q.Deferred<WHEntry> = Q.defer<WHEntry>();
-				this.geocodeEntry(entry, () => {
-					deferred.resolve(entry);
-				});
-			return deferred.promise;
-		});
-		var resolvedEntries: WHEntry[]
-		Q.all<WHEntry>(promises).done((values: WHEntry[]) => {
-			callback();
-		});*/
+
 		Q.all<WHEntry>(<Q.IPromise < WHEntry > []>
 			this.entries.map(this.limit(
 				(e: WHEntry) => { 
