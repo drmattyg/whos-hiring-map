@@ -122,7 +122,7 @@ describe("Location map test", () => {
 	it("Adds several objects with the same location", (mochaDone) => {
 		var whpWithDupes: WHP.WHParser = WHP.WHParser.getEmptyInstance(nc, null);
 		whp.geocodeEntries(() => {
-			console.log(whp.locationMap);
+			assert.equal(Object.keys(whp.locationMap).length, 6);
 			[5, 6, 7, 8, 9, 10, 5, 6, 7, 12, 13, 14, 12, 13, 14].forEach((n : number) => {
 				whpWithDupes.addEntry(whp.entries[n]);
 			})
@@ -142,4 +142,20 @@ describe("Location map test", () => {
 		//var dupeEntry : WHP.WHEntry = new WHP.WHEntry()
 	});
 
+});
+
+describe("File reading test", () => {
+	it("reads the output from the previous test", () => {
+		var input : string = fs.readFileSync("data/testoutput.js", "utf-8")
+		var entryData = JSON.parse(input)
+		var keySet = Object.keys(entryData);
+		keySet.forEach((k: string) => {
+			var d = k.split(/:/)
+			var lat = d[0]
+			var lon = d[1]
+			console.log(lat + "," + lon);
+			var entries: WHP.WHEntry[] = <WHP.WHEntry[]>entryData[k];
+			// not a real test, was just testing this code that it compiles, etc
+		});
+	});
 });
